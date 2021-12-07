@@ -1,0 +1,50 @@
+#include <iostream>
+#include <QAudioRecorder>
+#include <QMediaRecorder>
+#include <QApplication>
+#include <QMediaRecorder>
+#include <QUrl>
+
+
+class AudioRecorder
+{
+public:
+	QAudioRecorder *m_audioRecorder = nullptr;
+AudioRecorder(){
+	m_audioRecorder = new QAudioRecorder();
+	setOutputLocation();
+	toggleRecord();
+}
+
+void toggleRecord()
+{
+	if (m_audioRecorder->state() == QMediaRecorder::StoppedState) {
+		QStringList audioInputList = m_audioRecorder->audioInputs();
+		m_audioRecorder->setAudioInput(audioInputList[0]);
+		QAudioEncoderSettings settings;
+		settings.setCodec("audio/x-opus");
+		settings.setSampleRate(16000);
+		settings.setChannelCount(2);
+		settings.setQuality(QMultimedia::HighQuality);
+		m_audioRecorder->setEncodingSettings(settings);
+		m_audioRecorder->record();
+
+	}else {
+		m_audioRecorder->stop();
+	}
+}
+
+void setOutputLocation(){
+	QString fileName = "/home/111.opus";
+	qDebug() << "fileName =" << fileName;
+	m_audioRecorder->setOutputLocation(QUrl::fromLocalFile(fileName));
+}
+
+
+};
+int main(int argc, char *argv[]){
+	QApplication app(argc, argv);
+	AudioRecorder recorder;
+
+	return app.exec();
+}
